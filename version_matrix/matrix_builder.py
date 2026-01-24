@@ -5,15 +5,19 @@ from . import release_versions
 from . import constant
 
 
-def build_matrix() -> dict:
+def build_matrix(extra_matrix: dict | None = None) -> dict:
     """
     Build the version matrix
 
-    :return: None
+    :param extra_matrix: Optional extra matrix data to deep-merge into the result
+    :return: dict
     """
 
     threads = []
     matrix = {"short_sem_version": [], "include": []}
+    if extra_matrix:
+        _deep_merge_into(matrix, extra_matrix)
+
     failures = []
 
     for version in release_versions.list_all_versions():
@@ -36,6 +40,33 @@ def build_matrix() -> dict:
     matrix["short_sem_version"].sort()
 
     return matrix
+
+
+def _deep_merge_into(target: dict, incoming: dict) -> dict:
+    """
+    Deep-merge `incoming` into `target` (mutates `target`).
+
+    Rules:
+      - dict + dict  => recursive merge
+      - list + list  => extend target list with incoming list
+      - otherwise    => overwrite target with incoming
+    """
+
+    for key, incoming_value in incoming.items():
+        if key not in target:
+            target[key] = incoming_value
+            continue
+
+        target_value = target[key]
+
+        if isinstance(target_value, dict) and isinstance(incoming_value, dict):
+            _deep_merge_into(target_value, incoming_value)
+        elif isinstance(target_value, list) and isinstance(incoming_value, list):
+            target_value.extend(incoming_value)
+        else:
+            target[key] = incoming_value
+
+    return target
 
 
 def _check_version(version_number: str, matrix: dict, failures: list):

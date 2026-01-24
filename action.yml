@@ -1,6 +1,18 @@
 name: 'Version matrix'
 description: 'Generate a version matrix'
 
+inputs:
+  extra_matrix:
+    description: |
+      Optional YAML to deep-merge into the generated matrix.
+      Example:
+        include:
+          - short_sem_version: "8.4+custom"
+            full_sem_version: "8.4.0+custom"
+            short_version: "8.4"
+    required: false
+    default: ""
+
 outputs:
   matrix:
     description: Generated version matrix
@@ -20,4 +32,16 @@ runs:
         id: generate-matrix
         working-directory: ${{ github.action_path }}
         run: |
-          echo "matrix=$(python3 build_versions.py)" >> $GITHUB_OUTPUT
+          EXTRA_MATRIX_FILE=""
+          if [ -n "${{ inputs.extra_matrix }}" ]; then
+            EXTRA_MATRIX_FILE="extra_matrix.yml"
+            cat > "$EXTRA_MATRIX_FILE" <<'YAML'
+          ${{ inputs.extra_matrix }}
+          YAML
+          fi
+
+          if [ -n "$EXTRA_MATRIX_FILE" ]; then
+            echo "matrix=$(python3 build_versions.py --extra-matrix-yaml-file "$EXTRA_MATRIX_FILE")" >> $GITHUB_OUTPUT
+          else
+            echo "matrix=$(python3 build_versions.py)" >> $GITHUB_OUTPUT
+          fi

@@ -1,0 +1,2 @@
+requests == 2.32.4
+pylint == 2.14.3

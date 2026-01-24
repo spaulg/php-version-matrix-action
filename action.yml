@@ -10,7 +10,7 @@ runs:
   using: 'composite'
   steps:
       - shell: bash
-        working-directory: .github/actions/version-matrix
+        working-directory: ${{ github.action_path }}
         run: |
           python3 -m venv venv
           source venv/bin/activate

@@ -14,7 +14,7 @@ def build_matrix(extra_matrix: dict | None = None) -> dict:
     """
 
     threads = []
-    matrix = {"short_sem_version": [], "include": []}
+    matrix = {"version": [], "include": []}
     if extra_matrix:
         _deep_merge_into(matrix, extra_matrix)
 
@@ -37,7 +37,7 @@ def build_matrix(extra_matrix: dict | None = None) -> dict:
         thread.join()
 
     # Sort versions
-    matrix["short_sem_version"].sort()
+    matrix["version"].sort()
 
     return matrix
 
@@ -116,9 +116,9 @@ def _append_version_entry(version_metadata: dict, matrix: dict, suffix: str = No
     if suffix is not None:
         metadata = "+" + suffix
 
-    matrix["short_sem_version"].append(version_metadata["short_version"] + metadata)
+    matrix["version"].append(version_metadata["short_version"] + metadata)
     matrix["include"].append({
-        "short_sem_version": version_metadata["short_version"] + metadata,
+        "version": version_metadata["short_version"] + metadata,
         "full_sem_version": version_metadata["full_version"] + metadata,
         "short_version": version_metadata["short_version"],
     })

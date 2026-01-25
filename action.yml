@@ -2,6 +2,11 @@ name: 'Version matrix'
 description: 'Generate a version matrix'
 
 inputs:
+  min:
+    description: 'Minimum version to include in the matrix'
+    required: true
+    default: "7.0"
+
   extra_matrix:
     description: |
       Optional YAML to deep-merge into the generated matrix.
@@ -41,7 +46,7 @@ runs:
           fi
 
           if [ -n "$EXTRA_MATRIX_FILE" ]; then
-            echo "matrix=$(python3 build_versions.py --extra-matrix-yaml-file "$EXTRA_MATRIX_FILE")" >> $GITHUB_OUTPUT
+            echo "matrix=$(python3 build_versions.py --min-version "${{ inputs.min }}" --extra-matrix-yaml-file "$EXTRA_MATRIX_FILE")" >> $GITHUB_OUTPUT
           else
-            echo "matrix=$(python3 build_versions.py)" >> $GITHUB_OUTPUT
+            echo "matrix=$(python3 build_versions.py --min-version "${{ inputs.min }}")" >> $GITHUB_OUTPUT
           fi

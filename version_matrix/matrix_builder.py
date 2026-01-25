@@ -5,7 +5,7 @@ from . import release_versions
 from . import constant
 
 
-def build_matrix(extra_matrix: dict | None = None) -> dict:
+def build_matrix(min_version: float, extra_matrix: dict | None = None) -> dict:
     """
     Build the version matrix
 
@@ -20,7 +20,7 @@ def build_matrix(extra_matrix: dict | None = None) -> dict:
 
     failures = []
 
-    for version in release_versions.list_all_versions():
+    for version in release_versions.list_all_versions(min_version):
         logging.info("Spawning check for version %s", version)
 
         thread = threading.Thread(

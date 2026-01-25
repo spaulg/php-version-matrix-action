@@ -5,13 +5,17 @@ from datetime import datetime
 from . import constant
 
 
-def list_all_versions() -> list:
+def list_all_versions(min_version: str) -> list:
     """
     Fetch the latest versions of each PHP major/minor build
     combination
 
     :return:
     """
+
+    min_major_version, min_minor_version = min_version.split(".", 1)
+    min_major_version_int = int(min_major_version)
+    min_minor_version_int = int(min_minor_version)
 
     r = requests.get(constant.PHP_RELEASE_API)
     latest_releases = json.loads(r.content)
@@ -24,8 +28,8 @@ def list_all_versions() -> list:
         major_version_int = int(major_version)
         minor_version_int = int(minor_version)
 
-        while major_version_int == constant.PHP_MIN_MAJOR_VERSION and minor_version_int >= constant.PHP_MIN_MINOR_VERSION or \
-            major_version_int > constant.PHP_MIN_MAJOR_VERSION and minor_version_int >= 0:
+        while major_version_int == min_major_version_int and minor_version_int >= min_minor_version_int or \
+            major_version_int > min_major_version_int and minor_version_int >= 0:
             major_minor_version = major_version + "." + str(minor_version_int)
             minor_version_int = minor_version_int - 1
             yield major_minor_version

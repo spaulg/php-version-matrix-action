@@ -8,6 +8,7 @@ import yaml
 from version_matrix import matrix_builder
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--min-version")
 parser.add_argument("--verbose", "-v", action="count", default=0)
 parser.add_argument(
     "--extra-matrix-yaml-file",
@@ -31,6 +32,6 @@ if args.extra_matrix_yaml_file:
     except Exception as exc:
         raise SystemExit(f"Invalid extra matrix YAML file: {exc}")
 
-matrix = matrix_builder.build_matrix(extra_matrix=extra_matrix)
+matrix = matrix_builder.build_matrix(min_version=args.min_version, extra_matrix=extra_matrix)
 
 print(json.dumps(matrix))

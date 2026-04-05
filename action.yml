@@ -26,27 +26,31 @@ outputs:
 runs:
   using: 'composite'
   steps:
-      - shell: bash
-        working-directory: ${{ github.action_path }}
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip3 install -r requirements.txt
+    - shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip3 install -r requirements.txt
 
-      - shell: bash
-        id: generate-matrix
-        working-directory: ${{ github.action_path }}
-        run: |
-          EXTRA_MATRIX_FILE=""
-          if [ -n "${{ inputs.extra_matrix }}" ]; then
-            EXTRA_MATRIX_FILE="extra_matrix.yml"
-            cat > "$EXTRA_MATRIX_FILE" <<'YAML'
-          ${{ inputs.extra_matrix }}
-          YAML
-          fi
+    - shell: bash
+      id: generate-matrix
+      working-directory: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
 
-          if [ -n "$EXTRA_MATRIX_FILE" ]; then
-            echo "matrix=$(python3 build_versions.py --min-version "${{ inputs.min }}" --extra-matrix-yaml-file "$EXTRA_MATRIX_FILE")" >> $GITHUB_OUTPUT
-          else
-            echo "matrix=$(python3 build_versions.py --min-version "${{ inputs.min }}")" >> $GITHUB_OUTPUT
-          fi
+        EXTRA_MATRIX_FILE=""
+        if [ -n "${{ inputs.extra_matrix }}" ]; then
+          EXTRA_MATRIX_FILE="extra_matrix.yml"
+          cat > "$EXTRA_MATRIX_FILE" <<'YAML'
+        ${{ inputs.extra_matrix }}
+        YAML
+        fi
+
+        if [ -n "$EXTRA_MATRIX_FILE" ]; then
+          matrix="$(python3 build_versions.py --min-version "${{ inputs.min }}" --extra-matrix-yaml-file "$EXTRA_MATRIX_FILE")"
+        else
+          matrix="$(python3 build_versions.py --min-version "${{ inputs.min }}")"
+        fi
+
+        echo "matrix=$matrix" >> "$GITHUB_OUTPUT"

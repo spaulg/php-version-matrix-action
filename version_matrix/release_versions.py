@@ -18,10 +18,11 @@ def list_all_versions(min_version: str) -> list:
     min_minor_version_int = int(min_minor_version)
 
     r = requests.get(constant.PHP_RELEASE_API)
-    latest_releases = json.loads(r.content)
 
     if r.status_code != 200:
-        raise Exception("Failed to fetch all versions for listing for matrix")
+        raise Exception("Failed to fetch all versions for listing for matrix: non 200 status code: " + str(r.status_code))
+
+    latest_releases = json.loads(r.content)
 
     for release in latest_releases:
         major_version, minor_version, patch_version = latest_releases[release]["version"].split(".")
